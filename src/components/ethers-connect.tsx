@@ -1,54 +1,35 @@
-import { providers } from "ethers";
 import { useEffect, useState } from "react";
-import {
-  createClient,
-  WagmiConfig,
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useProvider,
-} from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { config } from "../config";
+import { useWeb3 } from "../hooks/useEthersWeb3";
+import { Container } from "./container";
 import { DemoCard } from "./demo-card";
 
-const client = createClient({
-  provider: new providers.JsonRpcProvider({ url: config.SCROLL_L2_URL }),
-});
-
-const WagmiContent = () => {
+const EthersContent = () => {
   const [latestBlock, setLatestBlock] = useState<number>(0);
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
-  const { disconnect } = useDisconnect();
-  const provider = useProvider({ chainId: config.SCROLL_L2_CHAINID });
+  const { account, connect, disconnect, provider } = useWeb3();
 
   useEffect(() => {
     const asyncFn = async () => {
-      if (isConnected) {
+      if (account && provider) {
         const blockNumber = await provider.getBlockNumber();
         setLatestBlock(blockNumber);
       }
     };
     asyncFn();
-  }, [isConnected, provider]);
+  }, [account, provider]);
 
   return (
+    <Container>
       <DemoCard
-        address={address as string}
+        title="EthersJs"
+        address={account as string}
         connect={connect}
         disconnect={disconnect}
         latestBlock={latestBlock}
       />
+    </Container>
   );
 };
 
 export const EthersConnect = () => {
-  return (
-    <WagmiConfig client={client}>
-      <WagmiContent />
-    </WagmiConfig>
-  );
+  return <EthersContent />;
 };

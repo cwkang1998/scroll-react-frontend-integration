@@ -1,15 +1,43 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+
+import Main from './Main';
 import reportWebVitals from './reportWebVitals';
+import { EthersConnect } from './components/ethers-connect';
+import { WagmiConnect } from './components/wagmi-connect';
+import { RainbowkitConnect } from './components/rainbowkit-connect';
+
+import './index.css'
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Main />,
+  },
+  {
+    path: "/ethersjs",
+    element: <EthersConnect />,
+  },
+  {
+    path: "/wagmi",
+    element: <WagmiConnect />,
+  },
+  {
+    path: "/rainbowkit",
+    element: <RainbowkitConnect />,
+  },
+]);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router}/>
   </React.StrictMode>
 );
 
