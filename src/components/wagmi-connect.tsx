@@ -1,4 +1,3 @@
-import { getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import {
   createClient,
@@ -50,26 +49,21 @@ const { chains, provider } = configureChains(
   ]
 );
 
-const { connectors } = getDefaultWallets({
-  appName: "example-connect",
-  chains,
-});
-
 const client = createClient({
   autoConnect: true,
-  connectors: [...connectors()],
+  connectors: [new InjectedConnector({ chains })],
   provider,
 });
+
 const WagmiContent = () => {
   const [latestBlock, setLatestBlock] = useState<number>(0);
   const { address, isConnected } = useAccount();
   const { connect } = useConnect({
     chainId: Number.parseInt(config.SCROLL_L2_CHAINID, 16),
-    connector: new InjectedConnector({
-    }),
+    connector: new InjectedConnector({ chains }),
   });
   const { disconnect } = useDisconnect();
-  const provider = useProvider()
+  const provider = useProvider();
 
   useEffect(() => {
     const asyncFn = async () => {

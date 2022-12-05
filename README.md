@@ -13,7 +13,7 @@ There are multiple libraries that can be used (and are used usually)
 
 Integration with wagmi is relatively simple. In order to connect to Scroll L2, we need to add a custom chain and a custom provider for wagmi.
 
-To do that, let's first add a new chain and provider using the `configureChains` function.
+To do that, let's first add a provider and connector using the `configureChains` function.
 
 
 ```typescript
@@ -51,14 +51,9 @@ const { chains, provider } = configureChains(
 We can then use `chains` and `provider` in creating a wagmi client.
 
 ```typescript
-const { connectors } = getDefaultWallets({
-    appName: "example-connect",
-    chains,
-});
-
 const client = createClient({
   autoConnect: true,
-  connectors: [...connectors()],
+  connectors: [new InjectedConnector({ chains })],
   provider,
 });
 ```
@@ -75,7 +70,52 @@ export const App = () => {
 }
 ```
 
+And to connect to specifically scroll, you can utilize the `useConnect` hook.
+
+```typescript
+const { connect } = useConnect({
+    chainId: 534354,
+    connector: new InjectedConnector({ chains }),
+  });
+```
+
 ### Rainbowkit
+
+As Rainbowkit integrates with wagmi, the above steps are similar, only requiring you to add some configuration for Rainbowkit.
+
+The first difference is for the connectors setup. Rainbowkit provides `getDefaultWallets` which let's you setup connectors for wagmi to consume instead of requiring you to set it up yourself.
+
+```typescript
+const { connectors } = getDefaultWallets({
+  appName: "example-connect",
+  chains,
+});
+
+const client = createClient({
+  autoConnect: true,
+  connectors: [...connectors()], // This replaces the InjectedConnector
+  provider,
+});
+```
+
+After that, just add the `RainbowKitProvider` nested under the `WagmiConfig`.
+
+
+```tsx
+    <WagmiConfig client={client}>
+    <RainbowKitProvider
+        chains={chains}
+        theme={darkTheme({
+        ...darkTheme.accentColors.blue,
+        })}
+        coolMode
+    >
+        <ConnectButton /> {/* Connect button provided by RainbowKit */}
+    </RainbowKitProvider>
+    </WagmiConfig>
+```
+
+And now it should work perfectly!
 
 
 ### Ethers
